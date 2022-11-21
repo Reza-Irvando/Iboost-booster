@@ -1,6 +1,5 @@
 from json_checker import Checker
 
-
 def BlastStatus(data):
     try:
         checker = Checker({

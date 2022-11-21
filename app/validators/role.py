@@ -1,11 +1,10 @@
 from json_checker import Checker
 
-def Platform(data):
+def Role(data):
     try:
         checker = Checker({
-            "platformName": str,
-            "platformCode": str,
-            "platformPrice": float
+            "roleName" : str,
+            "unitId": str
         })
         checker.validate(data)
         return False

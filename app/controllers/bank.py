@@ -6,21 +6,20 @@ from flask import request
 from bson import ObjectId
 from app import validators
 
-def PlatformList():
+def BankList():
     try:
-        collPlatform = models.Platforms.objects(
+        collBank = models.Banks.objects(
             isActive=True, isDelete=False).all()
         dataArray = []
-        for d in collPlatform:
+        for d in collBank:
             dataArray.append({
-                "platformId": str(d.id),
-                "platformName": d.platformName,
-                "platformCode": d.platformCode,
-                "platformPrice": d.platformPrice,
+                "bankId": str(d.id),
+                "bankName": d.bankName,
+                "bankCode": d.bankCode
             })
         return responses.Make(
             Status=200,
-            Message="Success",
+            Message="success",
             Data=dataArray
         ), 200
     except Exception as err:
@@ -30,28 +29,27 @@ def PlatformList():
             Message="error",
             Data=str(err)), HTTPStatus.INTERNAL_SERVER_ERROR.value
 
-def PlatformCreate():
+def BankCreate():
     try:
         bodyJson = request.json
         userId = request.args["userId"]
-        err = validators.Platform(bodyJson)
+        err = validators.Bank(bodyJson)
         if err:
             return responses.Make(
                 Status=HTTPStatus.BAD_REQUEST.value,
                 Message="error",
                 Data=str(err)
             ), HTTPStatus.BAD_REQUEST.value
-        collPlatform = models.Platforms(
-            platformName=bodyJson["platformName"], platformCode=bodyJson["platformCode"], platformPrice=bodyJson["platformPrice"], updatedBy=ObjectId(userId), createdBy=ObjectId(userId))
-        collPlatform.save()
+        collBank = models.Banks(
+            bankName=bodyJson["bankName"], bankCode=bodyJson["bankCode"], updatedBy=ObjectId(userId), createdBy=ObjectId(userId))
+        collBank.save()
         return responses.Make(
             Status=200,
             Message="success",
             Data={
-                "platformId": str(collPlatform.id),
-                "platformName": collPlatform.platformName,
-                "platformCode": collPlatform.platformCode,
-                "platformPrice": collPlatform.platformPrice
+                "bankId": str(collBank.id),
+                "bankName": collBank.bankName,
+                "bankCode": collBank.bankCode
             }
         ), 200
     except Exception as err:
@@ -61,20 +59,19 @@ def PlatformCreate():
             Message="error",
             Data=str(err)), HTTPStatus.INTERNAL_SERVER_ERROR.value
 
-def PlatformDetail():
+def BankDetail():
     try:
-        platformId = request.args["platformId"]
-        collPlatform = models.Platforms.objects(
-            id=ObjectId(platformId),
+        bankId = request.args["bankId"]
+        collBank = models.Banks.objects(
+            id=ObjectId(bankId),
             isActive=True, isDelete=False).first()
         return responses.Make(
             Status=200,
             Message="success",
             Data={
-                "platformId": str(collPlatform.id),
-                "platformName": collPlatform.platformName,
-                "platformCode": collPlatform.platformCode,
-                "platformPrice": collPlatform.platformPrice
+                "bankId": str(collBank.id),
+                "bankName": collBank.bankName,
+                "bankCode": collBank.bankCode
             }
         ), 200
     except Exception as err:
@@ -84,25 +81,24 @@ def PlatformDetail():
             Message="error",
             Data=str(err)), HTTPStatus.INTERNAL_SERVER_ERROR.value
 
-def PlatformUpdate():
+def BankUpdate():
     try:
-        platformId = request.args["platformId"]
-        userId = request.args["userId"]
         bodyJson = request.json
-        err = validators.Platform(bodyJson)
-        collPlatform = models.Platforms.objects(id=ObjectId(platformId), isActive=True, isDelete=False, updatedBy=ObjectId(userId))
-        if not collPlatform:
+        bankId = request.args["bankId"]
+        userId = request.args["userId"]
+        err = validators.Bank(bodyJson)
+        collBank = models.Banks.objects(id=ObjectId(bankId), isActive=True, isDelete=False, updatedBy=ObjectId(userId))
+        if not collBank:
             return responses.Make(
                 Status=HTTPStatus.BAD_REQUEST.value,
                 Message="error",
-                Data="Platform not found"
+                Data="Bank not found"
             ), HTTPStatus.BAD_REQUEST.value
-
-        collPlatform.update(platformName=bodyJson["platformName"], platformCode=bodyJson["platformCode"], platformPrice=bodyJson["platformPrice"], updatedBy=ObjectId(userId))
+        collBank.update(bankName=bodyJson["bankName"], bankCode=bodyJson["bankCode"], updatedBy=ObjectId(userId))
         return responses.Make(
             Status=HTTPStatus.OK.value,
-            Message="Successfuly update platform",
-            Data=f"Platform with platformId {platformId} was updated by {userId}"
+            Message="Successfuly update Bank",
+            Data=f"Bank with bankId {bankId} was updated by {userId}"
         ),200
     except Exception as err:
         error(err)
@@ -111,23 +107,24 @@ def PlatformUpdate():
             Message="error",
             Data=str(err)), HTTPStatus.INTERNAL_SERVER_ERROR.value
 
-def PlatformDelete():
+def BankDelete():
     try:
-        platformId = request.args["platformId"]
+        bankId = request.args["bankId"]
         userId = request.args["userId"]
-        collPlatform = models.Platforms.objects(
-            id=ObjectId(platformId), isActive=True, isDelete=False, updatedBy=ObjectId(userId))
-        if not collPlatform:
+        collBank = models.Banks.objects(
+            id=ObjectId(bankId),
+            isActive=True, isDelete=False, updatedBy=ObjectId(userId))
+        if not collBank:
             return responses.Make(
                 Status=HTTPStatus.OK.value,
                 Message="error",
-                Data="Platform not found"
+                Data="Bank not found"
             ), HTTPStatus.BAD_REQUEST.value
-        collPlatform.delete()
+        collBank.delete()
         return responses.Make(
             Status=HTTPStatus.OK.value,
-            Message="Successfuly delete platform",
-            Data=f"Platform with platformId {platformId} was deleted by {userId}"
+            Message="Successfuly delete Bank",
+            Data=f"Bank with bankId {bankId} was deleted by {userId}"
         ), 200
     except Exception as err:
         error(err)

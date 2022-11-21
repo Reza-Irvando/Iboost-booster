@@ -6,7 +6,6 @@ from flask import request
 from bson import ObjectId
 from app import validators
 
-
 def CategoryList():
     try:
         collCategory = models.Categories.objects(
@@ -32,7 +31,7 @@ def CategoryList():
 def CategoryCreate():
     try:
         bodyJson = request.json
-        userId = ObjectId(request.args["userId"])
+        userId = request.args["userId"]
         err = validators.Category(bodyJson)
         if err:
             return responses.Make(
@@ -41,7 +40,7 @@ def CategoryCreate():
                 Data=str(err)
             ), HTTPStatus.BAD_REQUEST.value
         collCategory = models.Categories(
-            categoryName=bodyJson["categoryName"], updatedBy=userId, createdBy=userId)
+            categoryName=bodyJson["categoryName"], updatedBy=ObjectId(userId), createdBy=ObjectId(userId))
         collCategory.save()
         return responses.Make(
             Status=200,
@@ -58,12 +57,11 @@ def CategoryCreate():
             Message="error",
             Data=str(err)), HTTPStatus.INTERNAL_SERVER_ERROR.value
 
-
 def CategoryDetail():
     try:
-        categoryId = ObjectId(request.args["categoryId"])
+        categoryId = request.args["categoryId"]
         collCategory = models.Categories.objects(
-            id=categoryId,
+            id=ObjectId(categoryId),
             isActive=True, isDelete=False).first()
         return responses.Make(
             Status=200,
@@ -83,25 +81,22 @@ def CategoryDetail():
 def CategoryUpdate():
     try:
         bodyJson = request.json
-        categoryId = ObjectId(request.args["categoryId"])
-        userId = ObjectId(request.args["userId"])
+        categoryId = request.args["categoryId"]
+        userId = request.args["userId"]
         err = validators.Category(bodyJson)
-        if err:
+        collCategory = models.Categories.objects(id=ObjectId(categoryId), isActive=True, isDelete=False, updatedBy=ObjectId(userId))
+        if not collCategory:
             return responses.Make(
                 Status=HTTPStatus.BAD_REQUEST.value,
                 Message="error",
-                Data=str(err)
+                Data="Category not found"
             ), HTTPStatus.BAD_REQUEST.value
-        collCategory = models.Categories.objects(id=categoryId, isActive=True, isDelete=False).update(
-            categoryName=bodyJson["categoryName"], updatedBy=userId)
+        collCategory.update(categoryName=bodyJson["categoryName"], updatedBy=ObjectId(userId))
         return responses.Make(
-            Status=200,
-            Message="success",
-            Data={
-                "categoryId": str(collCategory.id),
-                "categoryName": collCategory.categoryName
-            }
-        ), 200
+            Status=HTTPStatus.OK.value,
+            Message="Successfuly update Category",
+            Data=f"Category with categoryId {categoryId} was updated by {userId}"
+        ),200
     except Exception as err:
         error(err)
         return responses.Make(
@@ -109,21 +104,24 @@ def CategoryUpdate():
             Message="error",
             Data=str(err)), HTTPStatus.INTERNAL_SERVER_ERROR.value
 
-
 def CategoryDelete():
     try:
-        categoryId = ObjectId(request.args["categoryId"])
-        userId = ObjectId(request.args["userId"])
+        categoryId = request.args["categoryId"]
+        userId = request.args["userId"]
         collCategory = models.Categories.objects(
-            id=categoryId,
-            isActive=True, isDelete=False).update(isActive=False, isDelete=True, updatedBy=userId)
+            id=ObjectId(categoryId),
+            isActive=True, isDelete=False, updatedBy=ObjectId(userId))
+        if not collCategory:
+            return responses.Make(
+                Status=HTTPStatus.OK.value,
+                Message="error",
+                Data="Category not found"
+            ), HTTPStatus.BAD_REQUEST.value
+        collCategory.delete()
         return responses.Make(
-            Status=200,
-            Message="success",
-            Data={
-                "categoryId": str(collCategory.id),
-                "categoryName": collCategory.categoryName
-            }
+            Status=HTTPStatus.OK.value,
+            Message="Successfuly delete Category",
+            Data=f"Category with categoryId {categoryId} was deleted by {userId}"
         ), 200
     except Exception as err:
         error(err)

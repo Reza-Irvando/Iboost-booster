@@ -6,15 +6,18 @@ from flask import request
 from bson import ObjectId
 from app import validators
 
-def PaymentStatusList():
+def MutationList():
     try:
-        collPaymentStatus = models.PaymentStatus.objects(
+        collMutation = models.Mutations.objects(
             isActive=True, isDelete=False).all()
         dataArray = []
-        for d in collPaymentStatus:
+        for d in collMutation:
             dataArray.append({
-                "paymentStatusId": str(d.id),
-                "paymentStatusName": d.paymentStatusName,
+                "mutationId": str(d.id),
+                "fromUserUnitRoleId": str(d.fromUserUnitRoleId.id),
+                "toUserUnitRoleId": str(d.UserUnitRoleId.id),
+                "mutationAmount":d.mutationAmount,
+                "mutationNote": d.mutationNote
             })
         return responses.Make(
             Status=200,
@@ -28,26 +31,29 @@ def PaymentStatusList():
             Message="error",
             Data=str(err)), HTTPStatus.INTERNAL_SERVER_ERROR.value
 
-def PaymentStatusCreate():
+def MutationCreate():
     try:
         bodyJson = request.json
         userId = request.args["userId"]
-        err = validators.PaymentStatus(bodyJson)
+        err = validators.Mutation(bodyJson)
         if err:
             return responses.Make(
                 Status=HTTPStatus.BAD_REQUEST.value,
                 Message="error",
                 Data=str(err)
             ), HTTPStatus.BAD_REQUEST.value
-        collPaymentStatus = models.PaymentStatus(
-            paymentStatusName=bodyJson["paymentStatusName"], updatedBy=ObjectId(userId), createdBy=ObjectId(userId))
-        collPaymentStatus.save()
+        collMutation = models.Mutations(
+            fromUserUnitRoleId=ObjectId(bodyJson["fromUserUnitRoleId"]), toUserUnitRoleId=ObjectId(bodyJson["toUserUnitRoleId"]), mutationAmount=bodyJson["mutationAmount"], mutationNote=bodyJson["mutationNote"], updatedBy=ObjectId(userId), createdBy=ObjectId(userId))
+        collMutation.save()
         return responses.Make(
             Status=200,
             Message="Success create Payment Status",
             Data={
-                "paymentStatusId": str(collPaymentStatus.id),
-                "paymentStatusName": collPaymentStatus.paymentStatusName
+                "mutationId": str(collMutation.id),
+                "fromUserUnitRoleId": str(collMutation.fromUserUnitRoleId.id),
+                "toUserUnitRoleId": str(collMutation.toUserUnitRoleId.id),
+                "mutationAmount": collMutation.mutationAmount,
+                "mutationNote": collMutation.mutationNote
             }
         ), 200
     except Exception as err:
@@ -57,18 +63,21 @@ def PaymentStatusCreate():
             Message="error",
             Data=str(err)), HTTPStatus.INTERNAL_SERVER_ERROR.value
 
-def PaymentStatusDetail():
+def MutationDetail():
     try:
-        paymentStatusId = request.args["paymentStatusId"]
-        collPaymentStatus = models.PaymentStatus.objects(
-            id=ObjectId(paymentStatusId),
+        mutationId = request.args["mutationId"]
+        collMutation = models.Mutations.objects(
+            id=ObjectId(mutationId),
             isActive=True, isDelete=False).first()
         return responses.Make(
             Status=200,
             Message="success",
             Data={
-                "paymentStatusId": str(collPaymentStatus.id),
-                "paymentStatusName": collPaymentStatus.paymentStatusName
+                "mutationId": str(collMutation.id),
+                "fromUserUnitRoleId": str(collMutation.fromUserUnitRoleId.id),
+                "toUserUnitRoleId": str(collMutation.toUserUnitRoleId.id),
+                "mutationAmount": collMutation.mutationAmount,
+                "mutationNote": collMutation.mutationNote
             }
         ), 200
     except Exception as err:
@@ -78,24 +87,24 @@ def PaymentStatusDetail():
             Message="error",
             Data=str(err)), HTTPStatus.INTERNAL_SERVER_ERROR.value
 
-def PaymentStatusUpdate():
+def MutationUpdate():
     try:
         bodyJson = request.json
-        paymentStatusId = request.args["paymentStatusId"]
+        mutationId = request.args["mutationId"]
         userId = request.args["userId"]
-        err = validators.PaymentStatus(bodyJson)
-        collPaymentStatus = models.PaymentStatus.objects(id=ObjectId(paymentStatusId), isActive=True, isDelete=False, updatedBy=ObjectId(userId))
-        if not collPaymentStatus:
+        err = validators.Mutation(bodyJson)
+        collMutation = models.Mutations.objects(id=ObjectId(mutationId), isActive=True, isDelete=False, updatedBy=ObjectId(userId))
+        if not collMutation:
             return responses.Make(
                 Status=HTTPStatus.BAD_REQUEST.value,
                 Message="error",
-                Data="Payment Status not found"
+                Data="Mutation not found"
             ), HTTPStatus.BAD_REQUEST.value
-        collPaymentStatus.update(paymentStatusName=bodyJson["paymentStatusName"], updatedBy=ObjectId(userId))
+        collMutation.update(fromUserUnitRoleId=ObjectId(bodyJson["fromUserUnitRoleId"]), toUserUnitRoleId=ObjectId(bodyJson["toUserUnitRoleId"]), mutationAmount=bodyJson["mutationAmount"], mutationNote=bodyJson["mutationNote"], updatedBy=ObjectId(userId))
         return responses.Make(
             Status=HTTPStatus.OK.value,
-            Message="Successfuly update Payment Status",
-            Data=f"PaymentStatus with paymentStatusId {paymentStatusId} was updated by {userId}"
+            Message="Successfuly update Mutation",
+            Data=f"Mutation with mutationId {mutationId} was updated by {userId}"
         ),200
     except Exception as err:
         error(err)
@@ -104,23 +113,23 @@ def PaymentStatusUpdate():
             Message="error",
             Data=str(err)), HTTPStatus.INTERNAL_SERVER_ERROR.value
 
-def PaymentStatusDelete():
+def MutationDelete():
     try:
-        paymentStatusId = request.args["paymentStatusId"]
+        mutationId = request.args["mutationId"]
         userId = request.args["userId"]
-        collPaymentStatus = models.PaymentStatus.objects(
-            id=ObjectId(paymentStatusId), isActive=True, isDelete=False, updatedBy=ObjectId(userId))
-        if not collPaymentStatus:
+        collMutation = models.Mutations.objects(
+            id=ObjectId(mutationId), isActive=True, isDelete=False, updatedBy=ObjectId(userId))
+        if not collMutation:
             return responses.Make(
                 Status=HTTPStatus.OK.value,
                 Message="error",
-                Data="Payment Status not found"
+                Data="Mutation not found"
             ), HTTPStatus.BAD_REQUEST.value
-        collPaymentStatus.delete()
+        collMutation.delete()
         return responses.Make(
             Status=HTTPStatus.OK.value,
-            Message="Successfuly delete Payment Status",
-            Data=f"Payment Status with paymentStatusId {paymentStatusId} was deleted by {userId}"
+            Message="Successfuly delete Mutation",
+            Data=f"Mutation with mutationId {mutationId} was deleted by {userId}"
         ), 200
     except Exception as err:
         error(err)

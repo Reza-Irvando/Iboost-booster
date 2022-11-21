@@ -1,6 +1,5 @@
 from json_checker import Checker
 
-
 def PaymentStatus(data):
     try:
         checker = Checker({

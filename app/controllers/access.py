@@ -6,21 +6,19 @@ from flask import request
 from bson import ObjectId
 from app import validators
 
-def PlatformList():
+def CategoryList():
     try:
-        collPlatform = models.Platforms.objects(
+        collAccess = models.Access.objects(
             isActive=True, isDelete=False).all()
         dataArray = []
-        for d in collPlatform:
+        for d in collAccess:
             dataArray.append({
-                "platformId": str(d.id),
-                "platformName": d.platformName,
-                "platformCode": d.platformCode,
-                "platformPrice": d.platformPrice,
+                "accessId": str(d.id),
+                "accessName": d.accessName,
             })
         return responses.Make(
             Status=200,
-            Message="Success",
+            Message="success",
             Data=dataArray
         ), 200
     except Exception as err:
@@ -30,28 +28,26 @@ def PlatformList():
             Message="error",
             Data=str(err)), HTTPStatus.INTERNAL_SERVER_ERROR.value
 
-def PlatformCreate():
+def AccessCreate():
     try:
         bodyJson = request.json
         userId = request.args["userId"]
-        err = validators.Platform(bodyJson)
+        err = validators.Access(bodyJson)
         if err:
             return responses.Make(
                 Status=HTTPStatus.BAD_REQUEST.value,
                 Message="error",
                 Data=str(err)
             ), HTTPStatus.BAD_REQUEST.value
-        collPlatform = models.Platforms(
-            platformName=bodyJson["platformName"], platformCode=bodyJson["platformCode"], platformPrice=bodyJson["platformPrice"], updatedBy=ObjectId(userId), createdBy=ObjectId(userId))
-        collPlatform.save()
+        collAccess = models.Access(
+            accessName=bodyJson["accessName"], updatedBy=ObjectId(userId), createdBy=ObjectId(userId))
+        collAccess.save()
         return responses.Make(
             Status=200,
             Message="success",
             Data={
-                "platformId": str(collPlatform.id),
-                "platformName": collPlatform.platformName,
-                "platformCode": collPlatform.platformCode,
-                "platformPrice": collPlatform.platformPrice
+                "accessId": str(collAccess.id),
+                "accessName": collAccess.accessName
             }
         ), 200
     except Exception as err:
@@ -61,20 +57,18 @@ def PlatformCreate():
             Message="error",
             Data=str(err)), HTTPStatus.INTERNAL_SERVER_ERROR.value
 
-def PlatformDetail():
+def AccessDetail():
     try:
-        platformId = request.args["platformId"]
-        collPlatform = models.Platforms.objects(
-            id=ObjectId(platformId),
+        accessId = request.args["accessId"]
+        collAccess = models.Access.objects(
+            id=ObjectId(accessId),
             isActive=True, isDelete=False).first()
         return responses.Make(
             Status=200,
             Message="success",
             Data={
-                "platformId": str(collPlatform.id),
-                "platformName": collPlatform.platformName,
-                "platformCode": collPlatform.platformCode,
-                "platformPrice": collPlatform.platformPrice
+                "accessId": str(collAccess.id),
+                "accessName": collAccess.accessName
             }
         ), 200
     except Exception as err:
@@ -84,25 +78,24 @@ def PlatformDetail():
             Message="error",
             Data=str(err)), HTTPStatus.INTERNAL_SERVER_ERROR.value
 
-def PlatformUpdate():
+def AccessUpdate():
     try:
-        platformId = request.args["platformId"]
-        userId = request.args["userId"]
         bodyJson = request.json
-        err = validators.Platform(bodyJson)
-        collPlatform = models.Platforms.objects(id=ObjectId(platformId), isActive=True, isDelete=False, updatedBy=ObjectId(userId))
-        if not collPlatform:
+        accessId = request.args["accessId"]
+        userId = request.args["userId"]
+        err = validators.Access(bodyJson)
+        collAccess = models.Access.objects(id=ObjectId(accessId), isActive=True, isDelete=False, updatedBy=ObjectId(userId))
+        if not collAccess:
             return responses.Make(
                 Status=HTTPStatus.BAD_REQUEST.value,
                 Message="error",
-                Data="Platform not found"
+                Data="Access not found"
             ), HTTPStatus.BAD_REQUEST.value
-
-        collPlatform.update(platformName=bodyJson["platformName"], platformCode=bodyJson["platformCode"], platformPrice=bodyJson["platformPrice"], updatedBy=ObjectId(userId))
+        collAccess.update(accessName=bodyJson["accessName"], updatedBy=ObjectId(userId))
         return responses.Make(
             Status=HTTPStatus.OK.value,
-            Message="Successfuly update platform",
-            Data=f"Platform with platformId {platformId} was updated by {userId}"
+            Message="Successfuly update Access",
+            Data=f"Access with accessId {accessId} was updated by {userId}"
         ),200
     except Exception as err:
         error(err)
@@ -111,23 +104,24 @@ def PlatformUpdate():
             Message="error",
             Data=str(err)), HTTPStatus.INTERNAL_SERVER_ERROR.value
 
-def PlatformDelete():
+def AccessDelete():
     try:
-        platformId = request.args["platformId"]
+        accessId = request.args["accessId"]
         userId = request.args["userId"]
-        collPlatform = models.Platforms.objects(
-            id=ObjectId(platformId), isActive=True, isDelete=False, updatedBy=ObjectId(userId))
-        if not collPlatform:
+        collAccess = models.Access.objects(
+            id=ObjectId(accessId),
+            isActive=True, isDelete=False, updatedBy=ObjectId(userId))
+        if not collAccess:
             return responses.Make(
                 Status=HTTPStatus.OK.value,
                 Message="error",
-                Data="Platform not found"
+                Data="Access not found"
             ), HTTPStatus.BAD_REQUEST.value
-        collPlatform.delete()
+        collAccess.delete()
         return responses.Make(
             Status=HTTPStatus.OK.value,
-            Message="Successfuly delete platform",
-            Data=f"Platform with platformId {platformId} was deleted by {userId}"
+            Message="Successfuly delete Access",
+            Data=f"Access with accessId {accessId} was deleted by {userId}"
         ), 200
     except Exception as err:
         error(err)
