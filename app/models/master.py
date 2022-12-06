@@ -4,7 +4,6 @@ from datetime import datetime
 from app import configs
 
 connect(alias='master', db=configs.mongoDbMaster, host=configs.mongoHost, port=configs.mongoPort)
-# connect(alias='management', db=configs.mongoDbManagement, host=configs.mongoHost, port=configs.mongoPort)
 
 class Users(Document):
     userName = StringField(max_length=25, required=True, unique=True)
@@ -46,4 +45,16 @@ class Banks(Document):
 
     meta = {'db_alias': 'master'}
 
-# disconnect(alias='master')
+class Templates(Document):
+    templateName = StringField(required=True, unique=True) 
+    templateContent = StringField(required=True, unique=True) 
+    templateLength = IntField(required=True)
+    categoryId = ReferenceField(Categories, required=True)
+    createdAt = DateTimeField(required=True, default=datetime.utcnow())
+    updatedAt = DateTimeField(required=True, default=datetime.utcnow())
+    updatedBy = ReferenceField(Users, null=True)
+    createdBy = ReferenceField(Users, null=True)
+    isActive = BooleanField(required=True, default=True)
+    isDelete = BooleanField(required=True, default=False)
+
+    meta = {'db_alias': 'content'}

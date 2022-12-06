@@ -1,4 +1,4 @@
-from .platform import Platform
+from .platform1 import Platform
 from .category import Category
 from .blastStatus import BlastStatus
 from .paymentStatus import PaymentStatus
@@ -13,3 +13,4 @@ from .budget import Budget
 from .unitRole import UnitRole
 from .userUnitRole import UserUnitRole
 from .mutation import Mutation
+from .template import Template

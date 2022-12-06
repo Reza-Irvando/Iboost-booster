@@ -2,7 +2,6 @@ from mongoengine import connect
 from mongoengine import *
 from datetime import datetime
 from app import configs
-# from .transaction import Platforms
 
 connect(alias='management', db=configs.mongoDbManagement, host=configs.mongoHost, port=configs.mongoPort)
 

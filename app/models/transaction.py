@@ -5,9 +5,7 @@ from app import configs
 from .managament import UnitRoles
 
 connect(alias='content', db=configs.mongoDbContent, host=configs.mongoHost, port=configs.mongoPort)
-# connect(alias='management', db=configs.mongoDbManagement, host=configs.mongoHost, port=configs.mongoPort)
 connect(alias='transaction', db=configs.mongoDbTransaction, host=configs.mongoHost, port=configs.mongoPort)
-# connect(alias='master', db=configs.mongoDbMaster, host=configs.mongoHost, port=configs.mongoPort)
 
 class Users(Document):
     userName = StringField(max_length=25, required=True, unique=True)

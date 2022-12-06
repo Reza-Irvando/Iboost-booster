@@ -1,4 +1,4 @@
-from .platform import *
+from .platform1 import *
 from .category import *
 from .paymentStatus import *
 from .segment import *
@@ -12,3 +12,4 @@ from .budget import *
 from .unitRole import *
 from .userUnitRole import *
 from .mutation import *
+from .template import *
